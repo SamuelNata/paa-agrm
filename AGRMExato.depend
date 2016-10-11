@@ -1,0 +1,73 @@
+# depslib dependency file v1.0
+1476136654 source:c:\users\nael\desktop\exato\agrmexato\main.cpp
+	<iostream>
+	<sstream>
+	<string>
+	"Graph.h"
+	<ctime>
+
+1475425186 source:c:\users\nael\desktop\exato\agrmexato\src\adjacencymatrixgraph.cpp
+	"AdjacencyMatrixGraph.h"
+
+1475425186 c:\users\nael\desktop\exato\agrmexato\include\adjacencymatrixgraph.h
+
+1475762408 source:c:\users\nael\desktop\exato\agrmexato\src\edge.cpp
+	"Edge.h"
+	<iostream>
+
+1475762761 c:\users\nael\desktop\exato\agrmexato\include\edge.h
+
+1475431722 c:\users\nael\desktop\exato\agrmexato\include\generator.h
+
+1475706422 source:c:\users\nael\desktop\exato\agrmexato\src\generator.cpp
+	<iostream>
+	<fstream>
+	<stdlib.h>
+	<time.h>
+	<string>
+	"Generator.h"
+	"Edge.h"
+
+1475777637 c:\users\nael\desktop\exato\agrmexato\include\graph.h
+	"Edge.h"
+
+1476149928 source:c:\users\nael\desktop\exato\agrmexato\src\graph.cpp
+	<iostream>
+	<fstream>
+	<stdlib.h>
+	<time.h>
+	<string.h>
+	<sstream>
+	<unistd.h>
+	<vector>
+	"Edge.h"
+	"Graph.h"
+
+1476150013 source:c:\users\nael\desktop\exato\paa-agrm\main.cpp
+	<iostream>
+	<sstream>
+	<string>
+	"Graph.h"
+	<ctime>
+
+1475777637 c:\users\nael\desktop\exato\paa-agrm\include\graph.h
+	"Edge.h"
+
+1475762761 c:\users\nael\desktop\exato\paa-agrm\include\edge.h
+
+1476150397 source:c:\users\nael\desktop\exato\paa-agrm\src\edge.cpp
+	"Edge.h"
+	<iostream>
+
+1476149928 source:c:\users\nael\desktop\exato\paa-agrm\src\graph.cpp
+	<iostream>
+	<fstream>
+	<stdlib.h>
+	<time.h>
+	<string.h>
+	<sstream>
+	<unistd.h>
+	<vector>
+	"Edge.h"
+	"Graph.h"
+
