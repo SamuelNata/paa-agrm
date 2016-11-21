@@ -231,6 +231,7 @@ void Graph::readInstance( std::string fileName ){
     }
 }
 
+
 /**
 Limpa toda as arestas do grafo (remove as cores associadas a aresta, e as cores que foram pintadas na aresta)
 **/
@@ -353,9 +354,13 @@ void Graph::exactSolveAGRM( int * collorCount, bool * verticesInTree, int corMai
                     bestSolution[i] = (nextCount[i]<0);
                 }
                 bestNumCollors = numUsedCollors; //ATUALIZA O NUMERO DE CORES DA SOLUÇÃO
+                delete [] nextCount;
+                delete [] nextVerticesInTree;
                 return;
             }
             //else{   std::cout << "\n";  }
+            delete [] nextCount;
+            delete [] nextVerticesInTree;
             return;
         }
         //else{   std::cout << "\n";  }
@@ -369,13 +374,11 @@ void Graph::exactSolveAGRM( int * collorCount, bool * verticesInTree, int corMai
 
         if( numUsedCollors<bestNumCollors-1 ){ //SE AINDA É POSSIVEL CONSEGUIR UMA SOLUÇÃO MELHOR, REALIZA O PROXIMO PASSO DO BRANCH-AND-BOUND
             exactSolveAGRM( nextCount, nextVerticesInTree, nextCorMaisPresente, numUsedCollors, numUsedEdges+localNumArestas );
-            delete [] nextCount;
-            delete [] nextVerticesInTree;
         }
+        delete [] nextCount;
+        delete [] nextVerticesInTree;
     }
     //std::cout << "\n";
-    delete [] collorCount;
-    delete [] verticesInTree;
     level--;
     return;
 }
@@ -593,6 +596,7 @@ void Graph::mountSolution(){
         std::cout << "Graph::mountSolution() >> vem k\n";
     }
 
+    delete [] collorCount;
     delete [] verticesInTree;
 }
 
@@ -721,7 +725,6 @@ int Graph::generateCollor( int alfa, int corMaisPresente ){
     return corMaisPresente;
 }
 
-
 /**
 Gera uma solução inicial para o algoritmo
 **/
@@ -835,6 +838,8 @@ bool Graph::persistCollorsInTree(){
             }
         }
     }while( coloriu );
+    delete [] collorCount;
+    delete [] verticesInTree;
     return numPaintedEdges==numVertices-1;
 }
 
@@ -887,13 +892,16 @@ bool Graph::localSearch(){
             bestNumCollors = numUsedCollors;
             unpaint();
             mountSolution();
+            delete [] collorCount;
+            delete [] verticesInTree;
             return true;
         }
         //else{ std::cout << "Nao achou solucao\n"; }
     }
+    delete [] collorCount;
+    delete [] verticesInTree;
     return false;
 }
-
 
 /**
 Perturba a solução atual, com probabilidade alfa de escolher cores de fora da solução
@@ -957,11 +965,12 @@ void Graph::disturb( float alfa){
     delete [] verticesInTree;
 }
 
-
+/**
+Usado para debug, encontra um caso de erro por tentativa e erro
+**/
 void Graph::findCase(){
     int exactNumCores = 0;
     int heuristicNumCores = 0;
-
     while( exactNumCores<=heuristicNumCores ){
         //std::cout << "gerando\n";
         generateInstance(numVertices, 0.5);

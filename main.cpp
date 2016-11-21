@@ -117,13 +117,16 @@ int main()
 {
     //generateTestBanch(); // DESCOMENTE CASO QUEIRA GERAR CASOS DE TESTE;
     //solveInstances(); //SOLUCIONA TODO O BRANCO DE TESTES QUE FOI GERADO E ESTÁ EM ARQUIVO
-
-    Graph g10(6);
+    Graph g10(7);
     g10.findCase();
     g10.readInstance("findErrorCase.txt");
+    std::cout << "1\n";
     g10.exactSolve();
+    std::cout << "2\n";
     g10.printToFileSolutionReport("findErrorWithExact");
+    std::cout << "3\n";
     g10.heurisctSolve(0.8, 0.5);
+    std::cout << "4\n";
     g10.printToFileSolutionReport("findErrorWithHeuristic");
 
     /*Graph g20(200);
