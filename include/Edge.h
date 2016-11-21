@@ -16,8 +16,10 @@ public:
     void setNumCollors(int num);
     void addCollor(int collor);
     void paint(int collor);
+    void paint(int * collor);
+    void unpaintAllCollors();
     void clearCollor(int collor);
-    bool hasCollors(int * collor);
+    int hasCollors(int * collor);
     bool hasCollor(int collor);
     bool isPaintedCollor(int collor);
     bool isPainted();

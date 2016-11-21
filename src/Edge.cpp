@@ -54,6 +54,38 @@ void Edge::paint(int collor){
 }
 
 /**
+Pinta uma das cores do vetor collorna aresta
+**/
+void Edge::paint(int * collors){
+    if(activeCollors!=NULL && isActive && possibleCollors!=NULL ){
+        for( int i(0) ; i<maxCollorsNum ; i++){
+            if( collors[i]<0 && possibleCollors[i] ){
+                activeCollors[i] = true;
+                return;
+            }
+        }
+    }
+    else{
+        std::cout << "Edge::paint > Vai da merda, vai da merda (8)...\n";
+        if(possibleCollors==NULL){  std::cout << "possibleCollors==NULL\n"; }
+        if(activeCollors==NULL){  std::cout << "activeCollors==NULL\n"; }
+        if(!isActive){  std::cout << "!active\n"; }
+    }
+}
+
+/**
+Despinta todas as cores pintadas
+**/
+void Edge::unpaintAllCollors(){
+    if(activeCollors!=NULL){
+        for( int i(0) ; i<maxCollorsNum ; i++ ){
+            activeCollors[i] = false;
+        }
+    }
+    return;
+}
+
+/**
 Associa uma cor a aresta
 **/
 void Edge::addCollor(int collor){
@@ -93,15 +125,15 @@ void Edge::clearCollor(int collor){
 /**
 retorna true se uma das cores do vetor collor está associada a aresta, false caso contrario
 **/
-bool Edge::hasCollors(int * collor){
+int Edge::hasCollors(int * collor){
     if( isActive && activeCollors!=NULL && possibleCollors!=NULL ){
         for( int i(0) ; i<maxCollorsNum ; i++ ){
             if( collor[i]<0 && possibleCollors[i] ){
-                return true;
+                return i;
             }
         }
     }
-    return false;
+    return -1;
 }
 
 /**
