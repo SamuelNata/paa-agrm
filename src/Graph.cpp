@@ -12,6 +12,9 @@
 
 int level=0;
 
+/**
+DEGUB: serve para imprimir as mensagens de debug em formato de arvore
+**/
 void deslocLevel(){
     for( int i(0) ; i<level ; i++ ){
         std::cout << "\t";
@@ -49,7 +52,7 @@ Graph::~Graph(){
 
 /**
 Metodo utilizado para gerar uma instancia com "_numCores" cores e "_dencidade" dencidade de arestas
-Garante que o grafo È conexo pois gera uma arvore geradora para ent„o gerar o grafo final.
+Garante que o grafo √© conexo pois gera uma arvore geradora para ent√£o gerar o grafo final.
 **/
 void Graph::generateInstance( int _numCores, float _dencidade ){
     this->clearEdges();
@@ -63,25 +66,22 @@ void Graph::generateInstance( int _numCores, float _dencidade ){
         }
     }
 
-    numArestas = dencidade*(numVertices-1)*numVertices/2; // CALCULO DO NUMERO DE ARESTAS DE ACORDO COM A AS ESPECIFICA«’ES DE [Cerulli 2005]
+    numArestas = dencidade*(numVertices-1)*numVertices/2; // CALCULO DO NUMERO DE ARESTAS DE ACORDO COM A AS ESPECIFICA√á√ïES DE [Cerulli 2005]
     int linha, coluna, collorQuantity;
     srand(time(NULL)+rand());
 
-    std::vector<int> verticesInTree;    //REPRESENTA OS VERTICES J¡ PRESENTES NA ARVORE GERADORA
-    std::vector<int> verticesOutTree;   //REPRESENTA OS VERTICES N√O PRESENTES NA ARVORE GERADORA
-    for( int i(0) ; i<numVertices ; i++ ){ //INICIALIZA O CONJUNTO DE VERTICES N√O PRESENTES NA ARVORE GERADORA
+    std::vector<int> verticesInTree;    //REPRESENTA OS VERTICES J√Å PRESENTES NA ARVORE GERADORA
+    std::vector<int> verticesOutTree;   //REPRESENTA OS VERTICES N√ÉO PRESENTES NA ARVORE GERADORA
+    for( int i(0) ; i<numVertices ; i++ ){ //INICIALIZA O CONJUNTO DE VERTICES N√ÉO PRESENTES NA ARVORE GERADORA
         verticesOutTree.push_back(i);
     }
 
-    //VERTICES QUE SER√O ADJACENTES NO GRAFO
+    //VERTICES QUE SER√ÉO ADJACENTES NO GRAFO
     int vertice1 = verticesOutTree[rand()%numVertices];
     int vertice2 = verticesOutTree[rand()%numVertices];
 
     while( vertice2==vertice1 ){    vertice2 = verticesOutTree[rand()%numVertices];    }
-    collorQuantity = 1 + rand()%(1+numCores/10);
-    for( int k(0) ; k<collorQuantity ; k++ ){ // PREENCHER A PRIMEIRA ARESTA COM UM N⁄MERO ARBITRARIO DE CORES (NO MAXIMO numCores/10 CORES)
-        adjacencyMatrix[vertice1][vertice2].addCollor(rand()%numCores);
-    }
+    adjacencyMatrix[vertice1][vertice2].addCollor(rand()%numCores);
 
     //COLOCA A ARESTA QUE LIGA vertice1 A vertice2 NO GRAFO
     adjacencyMatrix[vertice2][vertice1] = adjacencyMatrix[vertice1][vertice2];
@@ -95,37 +95,41 @@ void Graph::generateInstance( int _numCores, float _dencidade ){
     verticesInTree.push_back(vertice1);
     verticesInTree.push_back(vertice2);
 
-    for( int i(1) ; i<numArestas ; ){ // PREENCHER O GRAFO COM AS numArestas ARESTAS RESTANTES
-
-        if( i<numVertices-1 ){
+    int cor=0;
+    for( int i(1) ; i<numArestas ; i++ ){ // PREENCHER O GRAFO COM AS numArestas ARESTAS RESTANTES
+        if( i<numVertices-1 ){ // SE AINDA NAO FOI FORMADA UMA ARVORE (PARA QUE O GRAFO SEJA CONEXO)
             vertice1 = verticesInTree[rand()%verticesInTree.size()];
             vertice2 = verticesOutTree[rand()%verticesOutTree.size()];
-            collorQuantity = 1 + rand()%(1+numCores/10);
-            for( int k(0) ; k<collorQuantity ; k++ ){ // PREENCHER A ARESTA COM UM N⁄MERO ARBITRARIO DE CORES (NO MAXIMO numCores/10 CORES)
-                adjacencyMatrix[vertice1][vertice2].addCollor(rand()%numCores);
-            }
+            adjacencyMatrix[vertice1][vertice2].addCollor(rand()%numCores);
+
             //COLOCA A ARESTA QUE LIGA vertice1 A vertice2 NO GRAFO
             adjacencyMatrix[vertice2][vertice1] = adjacencyMatrix[vertice1][vertice2];
+
             //ATUALIZA OS CONJUNTOS DE VERTICES
             for( it = verticesOutTree.begin() ; *it!=vertice2 ; it++ ){}
             verticesOutTree.erase(it);
             verticesInTree.push_back(vertice2);
-            i++;
         }
-        else{ // APOR TER UMA ARVORE GERADORA, TERMINA DE ADICIONAS AS ARESTAS RESTANTES PARA FORMAR O GRAFO
+        else{ // APOS TER UMA ARVORE GERADORA, TERMINA DE ADICIONAS AS ARESTAS RESTANTES PARA FORMAR O GRAFO
             linha=rand()%numVertices;
             coluna=rand()%numVertices;
-            while( adjacencyMatrix[linha][coluna].isActive && linha!=coluna ){
+            while( adjacencyMatrix[linha][coluna].isActive || linha==coluna ){
                 linha=rand()%numVertices;
                 coluna=rand()%numVertices;
             }
-
-            collorQuantity = 1 + rand() % (1+ numCores/10);
-            for( int k(0) ; k<collorQuantity ; k++ ){ // PREENCHER CADA ARESTA COM UM N⁄MERO ARBITRARIO DE CORES (NO MAXIMO numCores CORES)
-                adjacencyMatrix[linha][coluna].addCollor(rand()%numCores);
-            }
+            adjacencyMatrix[linha][coluna].addCollor(rand()%numCores);
             adjacencyMatrix[coluna][linha] = adjacencyMatrix[linha][coluna];
-            i++;
+        }
+    }
+
+    for( int i(1) ; i<numVertices ; i++ ){
+        for( int j(0) ; j<i ; j++ ){
+            if( adjacencyMatrix[i][j].isActive ){
+                collorQuantity = 1+(rand() % (1+ numCores/10));
+                for( int k(0) ; k>collorQuantity ; k++ ){
+                    adjacencyMatrix[i][j].addCollor(rand()%numCores);
+                }
+            }
         }
     }
     generated = true;
@@ -137,10 +141,8 @@ Metodo utilizado para salvar uma instancia gerada em arquivo de texto (que pode 
 void Graph::printInstanceToFile( std::string fileName ){
     std::ofstream file;
     file.open( (fileName + ".txt").c_str() );
-
     file << numVertices << " " << numCores << " " << numArestas <<"\n"; // FORMATO: n. de vertices, n. de cores, n. de arestas
-
-    //IMPRIME A LISTA DE ARESTAS ( aresta do vertice A ao vertice B, com as cores 2 e 0, dentre 5 cores È printado no arquivo como: A B 1 0 1 0 0 )
+    //IMPRIME A LISTA DE ARESTAS ( aresta do vertice A ao vertice B, com as cores 2 e 0, dentre 5 cores √© printado no arquivo como: A B 1 0 1 0 0 )
     for( int i(0) ; i<numVertices ; i++ ){
         for( int j(0) ; j<i ; j++ ){
             if( adjacencyMatrix[i][j].isActive ){
@@ -161,7 +163,7 @@ Printa a instancia do Grafo no terminal
 void Graph::print(){
     std::cout << numVertices << " " << numCores << " " << numArestas <<"\n"; // FORMATO: n. de vertices, n. de cores, n. de arestas
 
-    //PRINTA A LISTA DE ARESTAS ( aresta do vertice A ao vertice B, com as cores 2 e 0, dentre 5 cores È printado como: A B 1 0 1 0 0 )
+    //PRINTA A LISTA DE ARESTAS ( aresta do vertice A ao vertice B, com as cores 2 e 0, dentre 5 cores √© printado como: A B 1 0 1 0 0 )
     for( int i(0) ; i<numVertices ; i++ ){
         for( int j(0) ; j<i ; j++ ){
             if( adjacencyMatrix[i][j].isActive ){
@@ -176,7 +178,7 @@ void Graph::print(){
 }
 
 /**
-LÍ a instancia de um grafo a partir de um arquivo (O arquivo deve estar no modelo utilizado na funÁ„o printInstanceToFile() )
+L√™ a instancia de um grafo a partir de um arquivo (O arquivo deve estar no modelo utilizado na fun√ß√£o printInstanceToFile() )
 **/
 void Graph::readInstance( std::string fileName ){
     std::string line;
@@ -187,7 +189,7 @@ void Graph::readInstance( std::string fileName ){
         begin = 0;
         end = line.find(" ");
         if( numVertices!=atoi( line.substr(begin, end).c_str() ) ){
-            std::cout << "VocÍ ta inserindo um grafo com um n˙mero diferente de vertices\nO numero deve ser igual ao do grafo criado.";
+            std::cout << "Voc√™ esta inserindo um grafo com um n√∫mero diferente de vertices\nO numero deve ser igual ao do grafo criado.";
             return;
         }
 
@@ -257,9 +259,9 @@ void Graph::unpaint(){
 }
 
 /**
-1 - Realiza os preparativos para a resoluÁ„o do problema da Arvore Geradora de RotulaÁ„o Minima
-2 - Chama o algoritmo de Branch-And-Bound para a resoluÁ„o da Arvore Geradora de RotulaÁ„o Minima
-3 - Constroi a Arvore Geradora de RotulaÁ„o Minima com base no conjunto de cores encontrado
+1 - Realiza os preparativos para a resolu√ß√£o do problema da Arvore Geradora de Rotula√ß√£o Minima
+2 - Chama o algoritmo de Branch-And-Bound para a resolu√ß√£o da Arvore Geradora de Rotula√ß√£o Minima
+3 - Constroi a Arvore Geradora de Rotula√ß√£o Minima com base no conjunto de cores encontrado
 
 C = numero de cores
 N = numero de vertices
@@ -267,12 +269,12 @@ M = numero de arestas
 **/
 void Graph::exactSolve(){
     // 1 - REALIZANDO PREPARATIVOS
-    time_t end, begin = time(0);
+    clock_t begin = clock();
     if( bestSolution==NULL ){
         bestSolution = new bool[numCores];
     }
     int * collorCount = new int [numCores];
-    for( int i(0) ; i<numCores ; i++ ){     //INICIALIZANDO VETOR DE CONTAGEM DAS CORES PRESENTES NAS ARESTAS DA ARVORE, E O VETOR QUE CONTEM AS CORES DA SOLU«√O
+    for( int i(0) ; i<numCores ; i++ ){     //INICIALIZANDO VETOR DE CONTAGEM DAS CORES PRESENTES NAS ARESTAS DA ARVORE, E O VETOR QUE CONTEM AS CORES DA SOLU√á√ÉO
         collorCount[i] = 0;                 // O(C)
         bestSolution[i] = true;
     }
@@ -280,7 +282,7 @@ void Graph::exactSolve(){
 
     int corMaisPresente = 0;
     bool * verticesInTree = new bool [numVertices];
-    for( int i(1) ; i<numVertices ; i++ ){          // INICIALIZANDO VETOR QUE MARCA A PRESEN«A DOS VERTICES NA ARVORE E
+    for( int i(1) ; i<numVertices ; i++ ){          // INICIALIZANDO VETOR QUE MARCA A PRESEN√áA DOS VERTICES NA ARVORE E
         for( int j(0) ; j<i ; j++ ){                // CONTA AS ARESTAS POR COR, SEPARA A COR MAIS FREQUENTE
             for( int k(0) ; k<numCores ; k++ ){         //O(N^2*C)
                 if( adjacencyMatrix[i][j].isActive && adjacencyMatrix[i][j].hasCollor(k) && ++collorCount[k]>collorCount[corMaisPresente] ){
@@ -295,24 +297,23 @@ void Graph::exactSolve(){
     // 2 - ALGORITMO QUE REALIZA O BRANCH-AND-BOUND
     exactSolveAGRM(collorCount, verticesInTree, corMaisPresente, 0, 0); //O(C!*N^2)
 
-    // 3 - MONTANDO ARVORE SOLU«√O
+    // 3 - MONTANDO ARVORE SOLU√á√ÉO
     unpaint();
     mountSolution();
 
     delete [] collorCount;
     delete [] verticesInTree;
-    end = time(0);
-    solutionTime = difftime(end, begin)*1000.0;
+    solutionTime = (float)(clock()-begin)/CLOCKS_PER_SEC;
     return;
 }
 
 /**
-Algoritmo que realiza o Branch-And-Bound nas cores buscando otimizar o n˙mero de cores utilizadas.
+Algoritmo que realiza o Branch-And-Bound nas cores buscando otimizar o n√∫mero de cores utilizadas.
 **/
 void Graph::exactSolveAGRM( int * collorCount, bool * verticesInTree, int corMaisPresente, int numUsedCollors, int numUsedEdges ){
-    //NESTE PASSO SER¡ INSERIDA UMA COR NA SOLU«√O
-    level++;
-    //if(  numUsedCollors+projection(numUsedEdges, collorCount)>=bestNumCollors ){    return; } //VERIFICA SE … POSSIVEL ENCONTRAR UMA SOLU«√O MELHOR POR ESSE CAMINHO
+    //NESTE PASSO SER√Å INSERIDA UMA COR NA SOLU√á√ÉO
+    //level++;
+    if(  numUsedCollors+projection(numUsedEdges, collorCount)>=bestNumCollors ){    return; } //VERIFICA SE √â POSSIVEL ENCONTRAR UMA SOLU√á√ÉO MELHOR POR ESSE CAMINHO
     numUsedCollors++;
 
     int * nextCount;
@@ -321,8 +322,8 @@ void Graph::exactSolveAGRM( int * collorCount, bool * verticesInTree, int corMai
     int localNumArestas;
 
 
-    for( int k(0) ; k<numCores ; k++, c=(c+1)%numCores ){ //TENTA INSERIR CADA UMA DAS CORES, COME«ANDO PELA QUE MAIS APARECE NAS ARESTAS
-        if( collorCount[c]<1 ){   continue; } // SE A COR J¡ FAZ PARTE DA SOLU«√O, PULA PARA A PROXIMA COR
+    for( int k(0) ; k<numCores ; k++, c=(c+1)%numCores ){ //TENTA INSERIR CADA UMA DAS CORES, COME√áANDO PELA QUE MAIS APARECE NAS ARESTAS
+        if( collorCount[c]<1 ){   continue; } // SE A COR J√Å FAZ PARTE DA SOLU√á√ÉO, PULA PARA A PROXIMA COR
         localNumArestas = 0;
         nextCount = new int[numCores];
         for( int t(0) ; t<numCores ; t++ ){ //INICIALIZA A CONTAGEM DE CORES PARA O PROXIMO PASSO DO BRANCH-AND-BOUND
@@ -330,7 +331,7 @@ void Graph::exactSolveAGRM( int * collorCount, bool * verticesInTree, int corMai
         }
         nextCount[c] = -1;
 
-        nextVerticesInTree = new bool[numVertices]; // INICIALIZA A PRESEN«A DOS VERTICES PARA O PROXIMO PASSO DO BRANCH-AND-BOUND
+        nextVerticesInTree = new bool[numVertices]; // INICIALIZA A PRESEN√áA DOS VERTICES PARA O PROXIMO PASSO DO BRANCH-AND-BOUND
         for(int i(0) ; i<numVertices ; i++ ){
             nextVerticesInTree[i] = verticesInTree[i];
         }
@@ -346,24 +347,21 @@ void Graph::exactSolveAGRM( int * collorCount, bool * verticesInTree, int corMai
         **/
         colorir(nextVerticesInTree, nextCount, numUsedEdges, localNumArestas);
 
-        //SE O NUMERO DE ARESTAS ATUAL … N-1 TEMOS UMA ARVORE GERADORA (SOLU«√O)
+        //SE O NUMERO DE ARESTAS ATUAL √â N-1 TEMOS UMA ARVORE GERADORA (SOLU√á√ÉO)
         if( numUsedEdges+localNumArestas==numVertices-1 ){
-            if( numUsedCollors<bestNumCollors ){ //SE A SOLU«√O … MELHOR DO QUE A QUE J¡ TEMOS
-                //std::cout << "*\n";
-                for( int i(0) ; i<numCores  ; i++ ){ //GUARDA A SOLU«√O. O(C)
+            if( numUsedCollors<bestNumCollors ){ //SE A SOLU√á√ÉO √â MELHOR DO QUE A QUE J√Å TEMOS
+                for( int i(0) ; i<numCores  ; i++ ){ //GUARDA A SOLU√á√ÉO. O(C)
                     bestSolution[i] = (nextCount[i]<0);
                 }
-                bestNumCollors = numUsedCollors; //ATUALIZA O NUMERO DE CORES DA SOLU«√O
+                bestNumCollors = numUsedCollors; //ATUALIZA O NUMERO DE CORES DA SOLU√á√ÉO
                 delete [] nextCount;
                 delete [] nextVerticesInTree;
                 return;
             }
-            //else{   std::cout << "\n";  }
             delete [] nextCount;
             delete [] nextVerticesInTree;
             return;
         }
-        //else{   std::cout << "\n";  }
 
         int nextCorMaisPresente = 0;
         for( int i(0) ; i<numCores ; i++ ){ //RECALCULA A COR MAIS PRESENTE NAS ARESTAS DO GRAFO
@@ -372,41 +370,40 @@ void Graph::exactSolveAGRM( int * collorCount, bool * verticesInTree, int corMai
             }
         }
 
-        if( numUsedCollors<bestNumCollors-1 ){ //SE AINDA … POSSIVEL CONSEGUIR UMA SOLU«√O MELHOR, REALIZA O PROXIMO PASSO DO BRANCH-AND-BOUND
+        if( numUsedCollors<bestNumCollors-1 ){ //SE AINDA √â POSSIVEL CONSEGUIR UMA SOLU√á√ÉO MELHOR, REALIZA O PROXIMO PASSO DO BRANCH-AND-BOUND
             exactSolveAGRM( nextCount, nextVerticesInTree, nextCorMaisPresente, numUsedCollors, numUsedEdges+localNumArestas );
         }
         delete [] nextCount;
         delete [] nextVerticesInTree;
     }
-    //std::cout << "\n";
-    level--;
+    //level--;
     return;
 }
 
 /**
-Realiza uma projeÁ„o, retornando o minimo de cores que devem ser adicionadas para completar a arvore
+Realiza uma proje√ß√£o, retornando o minimo de cores que devem ser adicionadas para completar a arvore
 **/
 int Graph::projection( int numUsedEdges, int * collorCount ){
-    //mostUsedCollor = indice da cor mais utilizada nas arestas restantes da arvore da projeÁ„o
-    //numCollorProjeciton = projeÁ„o do numero de cores que ser„o inseridas
+    //mostUsedCollor = indice da cor mais utilizada nas arestas restantes da arvore da proje√ß√£o
+    //numCollorProjeciton = proje√ß√£o do numero de cores que ser√£o inseridas
     int mostUsedCollor= 0, numCollorProjection = 0;
     int * collorCountProjection = new int[numCores];
-    for( int i(0) ; i<numCores ; i++ ){ // INICIA O VETOR DE PROJE«√O DA CONTAGEM DAS CORES
+    for( int i(0) ; i<numCores ; i++ ){ // INICIA O VETOR DE PROJE√á√ÉO DA CONTAGEM DAS CORES
         collorCountProjection[i] = collorCount[i];
     }
-    while( numUsedEdges<numVertices-1 ){ // ADICIONA A COR QUE POSSUI O MAIOR NUMERO DE ARESTAS AT… COMPLETAR N-1 ARESTAS NA ARVORE
+    while( numUsedEdges<numVertices-1 ){ // ADICIONA A COR QUE POSSUI O MAIOR NUMERO DE ARESTAS AT√â COMPLETAR N-1 ARESTAS NA ARVORE
         for( int i(0) ; i<numCores ; i++ ){ //RECONHECE A COR QUE MAIS APARECE NA ARVORE
             mostUsedCollor = (collorCountProjection[i]>=0 && collorCountProjection[i]>collorCountProjection[mostUsedCollor])? i : mostUsedCollor;
         }
-        numUsedEdges += collorCountProjection[mostUsedCollor];      //ATUALIZA PROJE«√O DA QUANTIDADE DE ARESTAS
-        collorCountProjection[mostUsedCollor] = -1;                 //ATUALIZA PROJE«√O DA CONTAGEM DAS CORES
-        numCollorProjection++;                                      //ATUALIZA PROJE«√O DO NUMERO DE CORES NA SOLU«√O
+        numUsedEdges += collorCountProjection[mostUsedCollor];      //ATUALIZA PROJE√á√ÉO DA QUANTIDADE DE ARESTAS
+        collorCountProjection[mostUsedCollor] = -1;                 //ATUALIZA PROJE√á√ÉO DA CONTAGEM DAS CORES
+        numCollorProjection++;                                      //ATUALIZA PROJE√á√ÉO DO NUMERO DE CORES NA SOLU√á√ÉO
     }
     return numCollorProjection;
 }
 
 /**
-Imprime o relatorio da soluÁ„o no terminal.
+Imprime o relatorio da solu√ß√£o no terminal.
 [Use a funcao Graph::printToFileSolutionReport() para imprimir a arvore gerada em em arquivo.]
 **/
 void Graph::printSolutionReport( std::string instanceName ){
@@ -423,7 +420,7 @@ void Graph::printSolutionReport( std::string instanceName ){
 }
 
 /**
-Imprime o relatorio da soluÁ„o em arquivo de texto.
+Imprime o relatorio da solu√ß√£o em arquivo de texto.
 **/
 void Graph::printToFileSolutionReport( std::string fileName ){
     std::ofstream file;
@@ -461,9 +458,9 @@ void Graph::printToFileSolutionReport( std::string fileName ){
 
     file.close();
 
-    // IMPRIMINDO SOLU«√O NO RELATORIO GERAL PARA A GERA«√O DE TABELAS
+    // IMPRIMINDO SOLU√á√ÉO NO RELATORIO GERAL PARA A GERA√á√ÉO DE TABELAS
 
-    file.open("testBanchSolutions.txt.", std::ios::app);
+    file.open("testBanchSolutions1.txt", std::ios::app);
     file << numVertices << "\t" << numCores << "\t" << numArestas << "\t" << bestNumCollors << "\t" << solutionTime;
 
     file.close();
@@ -474,7 +471,7 @@ Imprime no arquivo o tempo e quantidade de cores encontradas pelo algoritmo exat
 **/
 void Graph::completFileSolutionReportLine( std::string fileName ){
     std::ofstream file;
-    file.open("testBanchSolutions.txt.", std::ios::app);
+    file.open("testBanchSolutions1.txt", std::ios::app);
     file << "\t" << bestNumCollors << "\t" << solutionTime << "\n";
     file.close();
 }
@@ -482,9 +479,9 @@ void Graph::completFileSolutionReportLine( std::string fileName ){
 /**
 Vetifica se:
 1 - O grafo inicial era conexo
-2 - A soluÁ„o encontrada È conexa
+2 - A solu√ß√£o encontrada √© conexa
 3 - todas as arestas no grafo podiam ser pintadas da cor que foram pintadas
-4 - a soluÁ„o È livre de ciclos
+4 - a solu√ß√£o √© livre de ciclos
 **/
 bool Graph::validateSolution(){
     if( !this->isConexGraph() ){
@@ -506,7 +503,7 @@ bool Graph::validateSolution(){
                         return false;
                     }
                     if( arestas>numVertices-1 ){
-                        std::cout << "arestas D+, n È arvore.\n";
+                        std::cout << "arestas D+, n √© arvore.\n";
                         return false;
                     }
                 }
@@ -517,7 +514,7 @@ bool Graph::validateSolution(){
 }
 
 /**
-vetifica se a instancia do grafo È conexa
+vetifica se a instancia do grafo √© conexa
 **/
 bool Graph::isConexGraph( ){
     bool ingraph[numVertices];
@@ -533,7 +530,7 @@ bool Graph::isConexGraph( ){
 }
 
 /**
-Verifica se a soluÁ„o encontrada È conexa
+Verifica se a solu√ß√£o encontrada √© conexa
 **/
 bool Graph::isConexSolution( ){
     bool ingraph[numVertices];
@@ -578,7 +575,7 @@ void Graph::risConexSolution( int vertice, bool ingraph[] ){
 }
 
 /**
-Monta uma arvore com o conjunto de cores soluÁ„o
+Monta uma arvore com o conjunto de cores solu√ß√£o
 **/
 void Graph::mountSolution(){
     bool * verticesInTree = new bool[numVertices];
@@ -586,7 +583,7 @@ void Graph::mountSolution(){
         verticesInTree[i] = false;
     }
 
-    //CONJUNTO DE CORES UTILIZADAS NA SOLU«√O
+    //CONJUNTO DE CORES UTILIZADAS NA SOLU√á√ÉO
     int * collorCount = new int [numCores];
     for( int i(0) ; i<numCores ; i++ ){
         collorCount[i] = bestSolution[i]? -1:numVertices*numVertices;
@@ -604,36 +601,23 @@ void Graph::mountSolution(){
 Resolve o problema atravez de uma busca local iterativa
 **/
 void Graph::heurisctSolve( float alfa, float beta ){
-    time_t end, begin = time(0);
-    time_t iend, ibegin; double idelta=0;
-    time_t lend, lbegin; double ldelta=0;
-    time_t dend, dbegin; double ddelta=0;
+    clock_t begin = clock();
     bool * backupSolution = new bool [numCores];
 
-    ibegin = time(0);
     initialSolution(alfa);
-    iend = time(0);
-    idelta += difftime(iend, ibegin)*1000;
 
     int backupNumCollors = bestNumCollors;
     for( int i(0) ; i<numCores ; i++ ){
         backupSolution[i] = bestSolution[i];
     }
 
-    lbegin = time(0);
     localSearch();
-    lend = time(0);
-    ldelta += difftime(lend, lbegin)*1000;
 
     //int coresUsadas;
     int iterations = 0;
 
     do{
-        lbegin = time(0);
         while( localSearch() ){}
-        lend = time(0);
-        ldelta += difftime(lend, lbegin)*1000;
-
         if( bestNumCollors<backupNumCollors ){
             iterations = 0;
             for( int i(0) ; i<numCores ; i++ ){
@@ -642,12 +626,7 @@ void Graph::heurisctSolve( float alfa, float beta ){
             backupNumCollors = bestNumCollors;
         }
         iterations++;
-
-        dbegin = time(0);
         disturb(alfa);
-        dend = time(0);
-        ddelta += difftime(dend, dbegin)*1000;
-
     }while( iterations < 5 );
 
     for( int i(0) ; i<numCores ; i++ ){
@@ -657,60 +636,54 @@ void Graph::heurisctSolve( float alfa, float beta ){
     unpaint();
     mountSolution();
 
-
     delete [] backupSolution;
-    end = time(0);
-    solutionTime = difftime(end, begin)*1000;
-    //std::cout << "initSolution: " << (difftime(iend, ibegin)*1000) << " ms\n";
-    //std::cout << "localSearch: " << (difftime(lend, lbegin)*1000) << " ms\n";
-    //std::cout << "disturb: " << (difftime(dend, dbegin)*1000) << " ms\n";
-
+    solutionTime = (float)(clock()-begin)/CLOCKS_PER_SEC;
     return;
 }
 
 /*
-1 SOLU«√O INICIAL                   // void initialSolution(float a);
+1 SOLU√á√ÉO INICIAL                   // void initialSolution(float a);
 2 BUSCA LOCAL                       // bool localSearch();
 3 ENQUANTO(CRITERIO)                // ???
-    3.1 PERTURBA«√O                 // ???  (pode mudar totalmente?)
+    3.1 PERTURBA√á√ÉO                 // ???  (pode mudar totalmente?)
     3.2 BUSCA LOCAL                 // bool localSearch();
-    3.3 CRITERIO DE ACEITA«√O       // ???
+    3.3 CRITERIO DE ACEITA√á√ÉO       // ???
 
 ----------------------------------------------------------------
-1 SOLU«√O INICIAL:
+1 SOLU√á√ÉO INICIAL:
     Dada uma probabilidade alfa, escolhe uma cor, com a probabilidade alfa
     de escolher de forma guloza, e 1-alfa de escolhar aleatoriamente.
 
-    A cada cor escolhida, insere a cor no conjunto de cores da soluÁ„o, e
-    tenta gerar uma arvore com estas cores, se n„o for possivel, adiciona
+    A cada cor escolhida, insere a cor no conjunto de cores da solu√ß√£o, e
+    tenta gerar uma arvore com estas cores, se n√£o for possivel, adiciona
     outra cor e continua o processo.
 
     A escolha guloza seleciona a cor que possui maior grau nas arestas
-    do grafo n„o utilizadas na arvore.
+    do grafo n√£o utilizadas na arvore.
 
 ----------------------------------------------------------------
 2 BUSCA LOCAL:
-    VizinhanÁa:
-    Para cada cor n„o utilizada na soluÁ„o, colore com ela
-    e depois tenta colorir com as cores pertencentes a soluÁ„o
+    Vizinhan√ßa:
+    Para cada cor n√£o utilizada na solu√ß√£o, colore com ela
+    e depois tenta colorir com as cores pertencentes a solu√ß√£o
     atual.
 
-    Formal: Sendo S o conjunto de cores na soluÁ„o, K o conjunto de
-    todas as cores, e L o conjunto das cores que n„o est„o na soluÁ„o,
-    onde S U L = K, a vizinhanÁa V È dada por:
+    Formal: Sendo S o conjunto de cores na solu√ß√£o, K o conjunto de
+    todas as cores, e L o conjunto das cores que n√£o est√£o na solu√ß√£o,
+    onde S U L = K, a vizinhan√ßa V √© dada por:
     V = U {Vi C (forAll c in L, {c} U S)}
 
 ----------------------------------------------------------------
-3.1 PERTURBA«√O:
+3.1 PERTURBA√á√ÉO:
     Escolhe cores com probabilidade alfa de escolher cores de fora da
-    soluÁ„o atual, caso n„o haja  cores fora da soluÁ„o atual, È sempre
-    escolhidaum  cor da soluÁ„o. A cada cor escolhida, ela È adicionada
+    solu√ß√£o atual, caso n√£o haja  cores fora da solu√ß√£o atual, √© sempre
+    escolhidaum  cor da solu√ß√£o. A cada cor escolhida, ela √© adicionada
     ao proximo conjunto de cores, e tentamos colorir a arvore com o
-    proximo conjunto de cores, se for possivel temos uma nova soluÁ„o, se
-    n„o, continuamos adicionando cores.
+    proximo conjunto de cores, se for possivel temos uma nova solu√ß√£o, se
+    n√£o, continuamos adicionando cores.
 
 ----------------------------------------------------------------
-3.3 CRITERIO DE ACEITA«√O: Enquanto diminuir o numero de cores.
+3.3 CRITERIO DE ACEITA√á√ÉO: Enquanto diminuir o numero de cores.
 
 */
 
@@ -726,7 +699,7 @@ int Graph::generateCollor( int alfa, int corMaisPresente ){
 }
 
 /**
-Gera uma soluÁ„o inicial para o algoritmo
+Gera uma solu√ß√£o inicial para o algoritmo
 **/
 void Graph::initialSolution(float alfa){
     //std::cout << "InitialSolution\n";
@@ -735,14 +708,14 @@ void Graph::initialSolution(float alfa){
         bestSolution = new bool[numCores];
     }
     int * collorCount = new int [numCores];
-    for( int i(0) ; i<numCores ; i++ ){     //INICIALIZANDO VETOR DE CONTAGEM DAS CORES PRESENTES NAS ARESTAS DA ARVORE, E O VETOR QUE CONTEM AS CORES DA SOLU«√O
+    for( int i(0) ; i<numCores ; i++ ){     //INICIALIZANDO VETOR DE CONTAGEM DAS CORES PRESENTES NAS ARESTAS DA ARVORE, E O VETOR QUE CONTEM AS CORES DA SOLU√á√ÉO
         collorCount[i] = numVertices*numVertices;                 // O(C)
         bestSolution[i] = false;
     }
 
     int corMaisPresente = 0;
     bool * verticesInTree = new bool [numVertices];
-    for( int i(1) ; i<numVertices ; i++ ){          // INICIALIZANDO VETOR QUE MARCA A PRESEN«A DOS VERTICES NA ARVORE E
+    for( int i(1) ; i<numVertices ; i++ ){          // INICIALIZANDO VETOR QUE MARCA A PRESEN√áA DOS VERTICES NA ARVORE E
         for( int j(0) ; j<i ; j++ ){                // CONTA AS ARESTAS POR COR, SEPARA A COR MAIS FREQUENTE
             for( int k(0) ; k<numCores ; k++ ){         //O(N^2*C)
                 if( adjacencyMatrix[i][j].hasCollor(k) && ++collorCount[k]>collorCount[corMaisPresente] ){
@@ -788,8 +761,8 @@ bool Graph::colorir( bool * verticesInTree, int * collorCount, const int numUsed
     do{
         coloriu = false;
         for( int i(1) ; i<numVertices ; i++ ){  //PARA A COR ATUAL (cor)
-            for( int j(0) ; j<i ; j++ ){    //INSERI AS ARESTAS QUE TEM ALGUMA COR DA SOLU«√O NA ARVORE, SEM FORMAR CICLOS
-                if( adjacencyMatrix[i][j].isActive && (verticesInTree[i]!=verticesInTree[j] || numUsedArrestas+localNumUsedArestas==0) ){   // ADICIONA UM VERTICE QUE N√O ESTAVA NA ARVORE (NAO FORMA CICLO)
+            for( int j(0) ; j<i ; j++ ){    //INSERI AS ARESTAS QUE TEM ALGUMA COR DA SOLU√á√ÉO NA ARVORE, SEM FORMAR CICLOS
+                if( adjacencyMatrix[i][j].isActive && (verticesInTree[i]!=verticesInTree[j] || numUsedArrestas+localNumUsedArestas==0) ){   // ADICIONA UM VERTICE QUE N√ÉO ESTAVA NA ARVORE (NAO FORMA CICLO)
                     cor = adjacencyMatrix[i][j].hasCollors(collorCount);
                     if( cor!=-1 ){
                         //std::cout << "Colorindo (" << i << ", " << j << ") com cor " << cor << std::endl;
@@ -824,8 +797,8 @@ bool Graph::persistCollorsInTree(){
     do{
         coloriu = false;
         for( int i(1) ; i<numVertices ; i++ ){  //PARA A COR ATUAL (cor)
-            for( int j(0) ; j<i ; j++ ){    //INSERI AS ARESTAS QUE TEM ALGUMA COR DA SOLU«√O NA ARVORE, SEM FORMAR CICLOS
-                if( adjacencyMatrix[i][j].isActive && (verticesInTree[i]!=verticesInTree[j] || numPaintedEdges==0) ){   // ADICIONA UM VERTICE QUE N√O ESTAVA NA ARVORE (NAO FORMA CICLO)
+            for( int j(0) ; j<i ; j++ ){    //INSERI AS ARESTAS QUE TEM ALGUMA COR DA SOLU√á√ÉO NA ARVORE, SEM FORMAR CICLOS
+                if( adjacencyMatrix[i][j].isActive && (verticesInTree[i]!=verticesInTree[j] || numPaintedEdges==0) ){   // ADICIONA UM VERTICE QUE N√ÉO ESTAVA NA ARVORE (NAO FORMA CICLO)
                     cor = adjacencyMatrix[i][j].hasCollors(collorCount);
                     if( cor!=-1 ){
                         adjacencyMatrix[i][j].paint(cor);
@@ -844,7 +817,7 @@ bool Graph::persistCollorsInTree(){
 }
 
 /**
-Busca uma soluÁ„o melhor dentre as soluÁıes proximas a atual
+Busca uma solu√ß√£o melhor dentre as solu√ß√µes proximas a atual
 **/
 bool Graph::localSearch(){
     //std::cout << "LocalSearch\n";
@@ -904,20 +877,20 @@ bool Graph::localSearch(){
 }
 
 /**
-Perturba a soluÁ„o atual, com probabilidade alfa de escolher cores de fora da soluÁ„o
+Perturba a solu√ß√£o atual, com probabilidade alfa de escolher cores de fora da solu√ß√£o
 **/
 void Graph::disturb( float alfa){
     //std::cout << "Disturb\n";
     unpaint();
     int * collorCount = new int [numCores];
-    for( int i(0) ; i<numCores ; i++ ){     //INICIALIZANDO VETOR DE CONTAGEM DAS CORES PRESENTES NAS ARESTAS DA ARVORE, E O VETOR QUE CONTEM AS CORES DA SOLU«√O
+    for( int i(0) ; i<numCores ; i++ ){     //INICIALIZANDO VETOR DE CONTAGEM DAS CORES PRESENTES NAS ARESTAS DA ARVORE, E O VETOR QUE CONTEM AS CORES DA SOLU√á√ÉO
         collorCount[i] = numVertices*numVertices;                 // O(C)
         bestSolution[i] = false;
     }
 
     std::vector<int> collorsInTree;
     std::vector<int> collorsOutTree;
-    for( int i(0) ; i<numCores ; i++ ){ //INICIALIZA O CONJUNTO DE VERTICES N√O PRESENTES NA ARVORE GERADORA
+    for( int i(0) ; i<numCores ; i++ ){ //INICIALIZA O CONJUNTO DE VERTICES N√ÉO PRESENTES NA ARVORE GERADORA
         if(bestSolution[i]){
             collorsInTree.push_back(i);
         }
@@ -928,7 +901,7 @@ void Graph::disturb( float alfa){
     }
 
     bool * verticesInTree = new bool [numVertices];
-    for( int i(1) ; i<numVertices ; i++ ){          // INICIALIZANDO VETOR QUE MARCA A PRESEN«A DOS VERTICES NA ARVORE E
+    for( int i(1) ; i<numVertices ; i++ ){          // INICIALIZANDO VETOR QUE MARCA A PRESEN√áA DOS VERTICES NA ARVORE E
         verticesInTree[i] = false;
     }
     verticesInTree[0] = false;
@@ -938,12 +911,12 @@ void Graph::disturb( float alfa){
     srand(time(NULL));
     std::vector<int>::iterator it;
     while( arestas<numCores-1 ){
-        if( (((float)rand()/(float)RAND_MAX) <= alfa && !collorsOutTree.empty()) || collorsInTree.empty() ){ // ESCOLHE UMA COR QUE N√O ESTAVA NA SOLU«√O
+        if( (((float)rand()/(float)RAND_MAX) <= alfa && !collorsOutTree.empty()) || collorsInTree.empty() ){ // ESCOLHE UMA COR QUE N√ÉO ESTAVA NA SOLU√á√ÉO
             c = collorsOutTree[rand()%collorsOutTree.size()];
             for( it = collorsOutTree.begin() ; *it!=c ; it++ ){}
             collorsOutTree.erase(it);
         }
-        else{           // ESCOLHE UMA COR QUE ESTAVA NA SOLU«√O
+        else{           // ESCOLHE UMA COR QUE ESTAVA NA SOLU√á√ÉO
             c = collorsInTree[rand()%collorsInTree.size()];
             for( it = collorsInTree.begin() ; *it!=c ; it++ ){}
             collorsInTree.erase(it);
@@ -958,7 +931,7 @@ void Graph::disturb( float alfa){
     unpaint();
     mountSolution();
     if( !validateSolution() ){
-        std::cout << "Graph::disturb >> SoluÁ„o invalida\n";
+        std::cout << "Graph::disturb >> Solu√ß√£o invalida\n";
     }
 
     delete [] collorCount;
@@ -972,12 +945,9 @@ void Graph::findCase(){
     int exactNumCores = 0;
     int heuristicNumCores = 0;
     while( exactNumCores<=heuristicNumCores ){
-        //std::cout << "gerando\n";
         generateInstance(numVertices, 0.5);
-        //std::cout << "solucao exata\n";
         exactSolve();
         exactNumCores = bestNumCollors;
-        //std::cout << "solucao heuristica\n";
         heurisctSolve(0.8, 0.5);
         heuristicNumCores = bestNumCollors;
     }

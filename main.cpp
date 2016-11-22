@@ -1,11 +1,19 @@
+#define LINUX
+//#define WINDOWS
+
 #include <iostream>
 #include <sstream>
 #include <string>
 #include "Graph.h"
 #include <ctime>
 
+
 float alfa = 0.8;
 float beta = 0.5;
+int numVerticesAndCollors1 = 10;
+int numVerticesAndCollors2 = 15;
+int numVerticesAndCollors3 = 20;
+
 
 std::string itoa( int number ){ //numberToString
 	std::stringstream ss;
@@ -19,62 +27,79 @@ void generateTestBanch(){
     // Graph::printInstanceToFile(std::string fileName)
 
     //GERAR BANCO DE TESTES;
-    Graph g100(100);
-    Graph g150(150);
-    Graph g200(200);
+
+    Graph g1(numVerticesAndCollors1);
+    Graph g2(numVerticesAndCollors2);
+    Graph g3(numVerticesAndCollors3);
 
     int numberOfCases = 20;
-    std::string fileName = "casosDeTesteGrupo1\\AGRM";
+
+    #ifdef WINDOWS
+        std::string fileName = "casosDeTesteGrupo1\\AGRM";
+    #endif
+
+    #ifdef LINUX
+        std::string fileName = "casosDeTesteGrupo1/AGRM";
+    #endif
+
     for( int i(0) ; i<numberOfCases ; i++ ){
         std::cout << " >>>> Gerando " << i << " de " << numberOfCases << "...\n";
 
-        std::cout << "g(100, 100, 0.2)\n";
-        g100.generateInstance(100, 0.2);
-        g100.printInstanceToFile( fileName+itoa(i) );
+        std::cout << "g(" << numVerticesAndCollors1 << ", " << numVerticesAndCollors1 << ", 0.2)\n";
+        g1.generateInstance(numVerticesAndCollors1, 0.2);
+        g1.printInstanceToFile( fileName+itoa(i) );
 
-        std::cout << "g(100, 100, 0.5)\n";
-        g100.generateInstance(100, 0.5);
-        g100.printInstanceToFile( fileName+itoa(i+20) );
+        std::cout << "g(" << numVerticesAndCollors1 << ", " << numVerticesAndCollors1 << ", 0.5)\n";
+        g1.generateInstance(numVerticesAndCollors1, 0.5);
+        g1.printInstanceToFile( fileName+itoa(i+20) );
 
-        std::cout << "g(100, 100, 0.8)\n";
-        g100.generateInstance(100, 0.8);
-        g100.printInstanceToFile( fileName+itoa(i+40) );
-
-
-
-        std::cout << "g(150, 150, 0.2)\n";
-        g150.generateInstance(150, 0.2);
-        g150.printInstanceToFile( fileName+itoa(i+60) );
-
-        std::cout << "g(150, 150, 0.5)\n";
-        g150.generateInstance(150, 0.5);
-        g150.printInstanceToFile( fileName+itoa(i+80) );
-
-        std::cout << "g(150, 150, 0.8)\n";
-        g150.generateInstance(150, 0.8);
-        g150.printInstanceToFile( fileName+itoa(i+100) );
+        std::cout << "g(" << numVerticesAndCollors1 << ", " << numVerticesAndCollors1 << ", 0.8)\n";
+        g1.generateInstance(numVerticesAndCollors1, 0.8);
+        g1.printInstanceToFile( fileName+itoa(i+40) );
 
 
 
-        std::cout << "g(200, 200, 0.2)\n";
-        g200.generateInstance(200, 0.2);
-        g200.printInstanceToFile( fileName+itoa(i+120) );
+        std::cout << "g(" << numVerticesAndCollors2 << ", " << numVerticesAndCollors2 << ", 0.2)\n";
+        g2.generateInstance(numVerticesAndCollors2, 0.2);
+        g2.printInstanceToFile( fileName+itoa(i+60) );
 
-        std::cout << "g(200, 200, 0.5)\n";
-        g200.generateInstance(200, 0.5);
-        g200.printInstanceToFile( fileName+itoa(i+140) );
+        std::cout << "g(" << numVerticesAndCollors2 << ", " << numVerticesAndCollors2 << ", 0.5)\n";
+        g2.generateInstance(numVerticesAndCollors2, 0.5);
+        g2.printInstanceToFile( fileName+itoa(i+80) );
 
-        std::cout << "g(200, 200, 0.8)\n";
-        g200.generateInstance(200, 0.8);
-        g200.printInstanceToFile( fileName+itoa(i+160) );
+        std::cout << "g(" << numVerticesAndCollors2 << ", " << numVerticesAndCollors2 << ", 0.8)\n";
+        g2.generateInstance(numVerticesAndCollors2, 0.8);
+        g2.printInstanceToFile( fileName+itoa(i+100) );
+
+
+
+        std::cout << "g(" << numVerticesAndCollors3 << ", " << numVerticesAndCollors3 << ", 0.2)\n";
+        g3.generateInstance(numVerticesAndCollors3, 0.2);
+        g3.printInstanceToFile( fileName+itoa(i+120) );
+
+        std::cout << "g(" << numVerticesAndCollors3 << ", " << numVerticesAndCollors3 << ", 0.5)\n";
+        g3.generateInstance(numVerticesAndCollors3, 0.5);
+        g3.printInstanceToFile( fileName+itoa(i+140) );
+
+        std::cout << "g(" << numVerticesAndCollors3 << ", " << numVerticesAndCollors3 << ", 0.8)\n";
+        g3.generateInstance(numVerticesAndCollors3, 0.8);
+        g3.printInstanceToFile( fileName+itoa(i+160) );
     }
 }
 
 void solveInstances(){
-    Graph g100(100);
-    Graph g150(150);
-    Graph g200(200);
-    std::string filename = "casosDeTesteGrupo1\\AGRM";
+    Graph g100(numVerticesAndCollors1);
+    Graph g150(numVerticesAndCollors2);
+    Graph g200(numVerticesAndCollors3);
+
+    #ifdef WINDOWS
+        std::string filename = "casosDeTesteGrupo1\\AGRM";
+    #endif
+
+    #ifdef LINUX
+        std::string filename = "casosDeTesteGrupo1/AGRM";
+    #endif
+
     for( int i(0) ; i<180 ; i++ ){ //RESOLVENDO GRUPO 1
         if( i<60 ){
             g100.readInstance( filename+itoa(i)+".txt");
@@ -115,19 +140,20 @@ void solveInstances(){
 
 int main()
 {
-    //generateTestBanch(); // DESCOMENTE CASO QUEIRA GERAR CASOS DE TESTE;
-    //solveInstances(); //SOLUCIONA TODO O BRANCO DE TESTES QUE FOI GERADO E ESTÁ EM ARQUIVO
-    Graph g10(7);
+    std::cout << "Gerando casos\n";
+    generateTestBanch(); // DESCOMENTE CASO QUEIRA GERAR CASOS DE TESTE;
+    std::cout << "Resolvendo casos\n";
+    solveInstances(); //SOLUCIONA TODO O BRANCO DE TESTES QUE FOI GERADO E ESTÁ EM ARQUIVO
+
+    /**
+    Graph g10(30);
     g10.findCase();
     g10.readInstance("findErrorCase.txt");
-    std::cout << "1\n";
     g10.exactSolve();
-    std::cout << "2\n";
     g10.printToFileSolutionReport("findErrorWithExact");
-    std::cout << "3\n";
     g10.heurisctSolve(0.8, 0.5);
-    std::cout << "4\n";
     g10.printToFileSolutionReport("findErrorWithHeuristic");
+    **/
 
     /*Graph g20(200);
     g20.generateInstance(200, 0.2);
@@ -147,34 +173,6 @@ int main()
         std::cout << "Houve erros.\n";
     }
     */
-    /**
-    Graph g20(20);
-    g20.generateInstance(20, 0.2);
-    g20.printInstanceToFile("g20Test.txt");
-
-
-    std::cout << "Solucao Inicial:\n";
-    g20.initialSolution(0.5);
-    if( g20.validateSolution() ){
-                std::cout << "OK\n";
-    }
-    else{
-        std::cout << "Houve erros.\n";
-    }
-    std::cout << "Solucao Inicial:\n";
-    g20.printSolutionReport("G20 - Solucao Inicial");
-
-    std::cout << "Busca Local:\n";
-    g20.localSearch();
-    if( g20.validateSolution() ){
-                std::cout << "OK\n";
-    }
-    else{
-        std::cout << "Houve erros.\n";
-    }
-    g20.printSolutionReport("G20 com Busca local");
-    g20.printToFileSolutionReport("g20TestSolution.txt");
-    **/
 
     return 0;
 }
